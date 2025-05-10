@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  nest-app:
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate dev --name first_load && yarn build && yarn start:prod"
+
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - '5433:5432'
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6380:6379'
