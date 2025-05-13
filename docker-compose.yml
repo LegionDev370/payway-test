@@ -9,12 +9,29 @@ services:
       redis:
         condition: service_healthy
     command: sh -c "npx prisma migrate dev --name first_load && yarn build && yarn start:prod"
-
+    ports:
+      - '4000:4000'
+  
   postgres:
     image: postgres:17-alpine
     ports:
       - '5433:5432'
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
   redis:
     image: redis:7-alpine
     ports:
       - '6380:6379'
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
